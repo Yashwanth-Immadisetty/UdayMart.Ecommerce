@@ -34,12 +34,40 @@ categories_data = [
     ('Baby Products', 'baby-products', '👶'),
 ]
 
+category_images = {
+    'groceries': 'categories/groceries.jpg',
+    'fruits-vegetables': 'categories/fruites.jpg',
+    'dairy-eggs': 'categories/Dairy.jpg',
+    'snacks-beverages': 'categories/Snacks.jpg',
+    'personal-care': 'categories/Personal_Care.jpg',
+    'household-cleaning': 'categories/Household.jpg',
+    'medicines-health': 'categories/Personal_Care.jpg',
+    'baby-products': 'categories/Personal_Care.jpg',
+}
+
+product_images = {
+    'groceries': 'categories/groceries.jpg',
+    'fruits-vegetables': 'categories/fruites.jpg',
+    'dairy-eggs': 'categories/Dairy.jpg',
+    'snacks-beverages': 'categories/Snacks.jpg',
+    'personal-care': 'categories/Personal_Care.jpg',
+    'household-cleaning': 'categories/Household.jpg',
+}
+
 cats = {}
 for name, slug, icon in categories_data:
     cat, created = Category.objects.get_or_create(
         slug=slug,
-        defaults={'name': name, 'icon': icon, 'description': f'Best {name} at lowest prices'}
+        defaults={
+            'name': name,
+            'icon': icon,
+            'image': category_images[slug],
+            'description': f'Best {name} at lowest prices',
+        }
     )
+    if not created and not cat.image:
+        cat.image = category_images[slug]
+        cat.save(update_fields=['image'])
     cats[slug] = cat
     if created:
         print(f"  ✅ Category: {name}")
@@ -92,12 +120,16 @@ for name, slug, cat_slug, brand, desc, price, orig_price, stock, featured in pro
             'price': price,
             'original_price': orig_price,
             'stock': stock,
+            'image': product_images[cat_slug],
             'is_featured': featured,
             'is_available': True,
             'rating': 4.2,
             'review_count': 0,
         }
     )
+    if not created and not prod.image:
+        prod.image = product_images[cat_slug]
+        prod.save(update_fields=['image'])
     if created:
         print(f"  ✅ Product: {name}")
 
