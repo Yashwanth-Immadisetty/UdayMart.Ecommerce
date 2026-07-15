@@ -1,0 +1,196 @@
+{% extends 'store/base.html' %}
+{% load static %}
+{% block title %}{{ product.name }} – Uday Mart{% endblock %}
+
+{% block content %}
+<div class="container">
+  <!-- Breadcrumb -->
+  <div class="breadcrumb">
+    <a href="{% url 'home' %}">Home</a> &rsaquo;
+    <a href="{% url 'category_products' product.category.slug %}">{{ product.category.name }}</a> &rsaquo;
+    <span>{{ product.name|truncatechars:40 }}</span>
+  </div>
+
+  <div class="product-detail-layout">
+
+    <!-- LEFT: Images -->
+    <div class="pd-images">
+      <div class="pd-main-img">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" id="mainImage"/>
+        {% else %}
+        <div class="product-placeholder-lg">{{ product.category.icon }}</div>
+        {% endif %}
+      </div>
+      {% if product.images.all %}
+      <div class="pd-thumbs">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" class="pd-thumb active" onclick="setMainImg(this)"/>
+        {% endif %}
+        {% for img in product.images.all %}
+        <img src="{{ img.image.url }}" class="pd-thumb" onclick="setMainImg(this)"/>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- CENTER: Info -->
+    <div class="pd-info">
+      <p class="pd-brand">{{ product.brand|default:"Uday Mart Brand" }}</p>
+      <h1 class="pd-title">{{ product.name }}</h1>
+
+      <!-- Rating -->
+      <div class="pd-rating">
+        {% with r=product.rating|floatformat:0 %}
+        {% for i in "12345" %}
+          <i class="fas fa-star {% if forloop.counter > r|add:'0' %}far{% endif %}"></i>
+        {% endfor %}
+        {% endwith %}
+        <a href="#reviews" class="rating-link">{{ product.rating }} ({{ product.review_count }} reviews)</a>
+      </div>
+
+      <hr class="pd-divider"/>
+
+      <!-- Price -->
+      <div class="pd-price-block">
+        <span class="pd-price">₹{{ product.price }}</span>
+        {% if product.original_price %}
+        <span class="pd-old-price">₹{{ product.original_price }}</span>
+        <span class="pd-savings">Save {{ product.discount_percent }}%</span>
+        {% endif %}
+      </div>
+
+      <hr class="pd-divider"/>
+
+      <!-- Description -->
+      <div class="pd-description">
+        <h3>About this item</h3>
+        <p>{{ product.description }}</p>
+      </div>
+
+      <hr class="pd-divider"/>
+
+      <!-- Category -->
+      <p class="pd-meta"><strong>Category:</strong> {{ product.category.icon }} {{ product.category.name }}</p>
+      {% if product.brand %}<p class="pd-meta"><strong>Brand:</strong> {{ product.brand }}</p>{% endif %}
+    </div>
+
+    <!-- RIGHT: Buy Box -->
+    <div class="pd-buybox">
+      <div class="buybox-price">₹{{ product.price }}</div>
+
+      {% if product.in_stock %}
+      <p class="buybox-stock in-stock">✓ In Stock ({{ product.stock }} left)</p>
+
+      <form action="{% url 'add_to_cart' product.id %}" method="POST">
+        {% csrf_token %}
+        <div class="qty-select">
+          <label>Qty:</label>
+          <select name="quantity" class="form-select-sm">
+            {% for i in "12345" %}
+            <option value="{{ forloop.counter }}">{{ forloop.counter }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn-add-cart-lg">🛒 Add to Cart</button>
+        <a href="{% url 'checkout' %}" class="btn-buy-now" onclick="this.closest('form').submit(); return false;">⚡ Buy Now</a>
+      </form>
+
+      <!-- Wishlist -->
+      <a href="{% url 'toggle_wishlist' product.id %}" class="btn-wishlist {% if in_wishlist %}active{% endif %}">
+        <i class="{% if in_wishlist %}fas{% else %}far{% endif %} fa-heart"></i>
+        {% if in_wishlist %}Remove from Wishlist{% else %}Add to Wishlist{% endif %}
+      </a>
+
+      {% else %}
+      <p class="buybox-stock out-of-stock">✗ Out of Stock</p>
+      {% endif %}
+
+      <div class="buybox-perks">
+        <p>🚚 Free delivery on orders ₹499+</p>
+        <p>↩ Easy 7-day returns</p>
+        <p>🛡 Secure payments</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── REVIEWS ── -->
+  <section class="reviews-section" id="reviews">
+    <h2>Customer Reviews</h2>
+
+    <!-- Review Summary -->
+    <div class="review-summary">
+      <div class="review-avg">
+        <span class="avg-num">{{ product.rating }}</span>
+        <div class="avg-stars">
+          {% with r=product.rating|floatformat:0 %}
+          {% for i in "12345" %}
+          <i class="fas fa-star {% if forloop.counter > r|add:'0' %}far{% endif %}"></i>
+          {% endfor %}
+          {% endwith %}
+        </div>
+        <p>{{ product.review_count }} reviews</p>
+      </div>
+    </div>
+
+    <!-- Write Review -->
+    {% if user.is_authenticated %}
+    <div class="review-form-card">
+      <h3>Write a Review</h3>
+      <form method="POST" action="">
+        {% csrf_token %}
+        {{ review_form.as_p }}
+        <button type="submit" class="btn-primary-um">Submit Review</button>
+      </form>
+    </div>
+    {% else %}
+    <p class="review-login-prompt"><a href="{% url 'login' %}">Sign in</a> to write a review.</p>
+    {% endif %}
+
+    <!-- Reviews List -->
+    <div class="reviews-list">
+      {% for review in reviews %}
+      <div class="review-card">
+        <div class="review-header">
+          <strong>{{ review.user.first_name|default:review.user.username }}</strong>
+          <div class="review-stars">
+            {% for i in "12345" %}
+            <i class="fas fa-star {% if forloop.counter > review.rating %}far{% endif %}"></i>
+            {% endfor %}
+          </div>
+          <span class="review-date">{{ review.created_at|date:"d M Y" }}</span>
+        </div>
+        <h4>{{ review.title }}</h4>
+        <p>{{ review.comment }}</p>
+      </div>
+      {% empty %}
+      <p class="no-reviews">No reviews yet. Be the first to review!</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- ── RELATED PRODUCTS ── -->
+  {% if related_products %}
+  <section class="section">
+    <div class="section-header">
+      <h2>Related Products</h2>
+    </div>
+    <div class="product-grid">
+      {% for rp in related_products %}
+        {% include 'store/partials/product_card.html' with product=rp %}
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function setMainImg(thumb) {
+  document.getElementById('mainImage').src = thumb.src;
+  document.querySelectorAll('.pd-thumb').forEach(t => t.classList.remove('active'));
+  thumb.classList.add('active');
+}
+</script>
+{% endblock %}

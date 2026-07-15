@@ -1,0 +1,71 @@
+{% extends 'store/base.html' %}
+{% block title %}Shop All Products – Uday Mart{% endblock %}
+
+{% block content %}
+<div class="container shop-layout">
+
+  <!-- Sidebar Filters -->
+  <aside class="filter-sidebar">
+    <div class="filter-section">
+      <h3>🗂 Categories</h3>
+      <ul>
+        <li><a href="{% url 'product_list' %}" class="{% if not selected_category %}active{% endif %}">All Products</a></li>
+        {% for cat in categories %}
+        <li><a href="?category={{ cat.slug }}" class="{% if selected_category.slug == cat.slug %}active{% endif %}">{{ cat.icon }} {{ cat.name }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="filter-section">
+      <h3>💰 Price Range</h3>
+      <form method="GET" class="price-filter-form">
+        {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category.slug }}">{% endif %}
+        <div class="price-inputs">
+          <input type="number" name="min_price" placeholder="Min ₹" value="{{ request.GET.min_price }}" class="price-input"/>
+          <span>–</span>
+          <input type="number" name="max_price" placeholder="Max ₹" value="{{ request.GET.max_price }}" class="price-input"/>
+        </div>
+        <button type="submit" class="btn-filter">Apply</button>
+      </form>
+    </div>
+  </aside>
+
+  <!-- Main Product Area -->
+  <div class="product-main">
+    <div class="shop-header">
+      <h2>
+        {% if selected_category %}{{ selected_category.icon }} {{ selected_category.name }}
+        {% else %}All Products{% endif %}
+        <span class="product-count">({{ products.count }} items)</span>
+      </h2>
+
+      <form method="GET" class="sort-form">
+        {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category.slug }}">{% endif %}
+        <label>Sort by:</label>
+        <select name="sort" onchange="this.form.submit()" class="sort-select">
+          <option value="" {% if not sort %}selected{% endif %}>Relevance</option>
+          <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+          <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+          <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Top Rated</option>
+          <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest First</option>
+        </select>
+      </form>
+    </div>
+
+    {% if products %}
+    <div class="product-grid">
+      {% for product in products %}
+        {% include 'store/partials/product_card.html' %}
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <h3>No products found</h3>
+      <p>Try a different category or filter.</p>
+      <a href="{% url 'product_list' %}" class="btn-primary-um">View All Products</a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

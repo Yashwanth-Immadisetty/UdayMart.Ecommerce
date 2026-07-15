@@ -1,0 +1,103 @@
+{% extends 'store/base.html' %}
+{% block title %}Shopping Cart – Uday Mart{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1 class="page-title">🛒 Shopping Cart</h1>
+
+  {% if items %}
+  <div class="cart-layout">
+
+    <!-- Cart Items -->
+    <div class="cart-items-col">
+      {% for item in items %}
+      <div class="cart-item">
+        <div class="cart-item-img">
+          {% if item.product.image %}
+          <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}"/>
+          {% else %}
+          <div class="product-placeholder-sm">{{ item.product.category.icon }}</div>
+          {% endif %}
+        </div>
+
+        <div class="cart-item-info">
+          <a href="{{ item.product.get_absolute_url }}" class="cart-item-name">{{ item.product.name }}</a>
+          <p class="cart-item-brand">{{ item.product.brand|default:"Uday Mart" }}</p>
+          {% if item.product.in_stock %}
+          <p class="in-stock">✓ In Stock</p>
+          {% else %}
+          <p class="out-of-stock">Out of Stock</p>
+          {% endif %}
+
+          <div class="cart-item-actions">
+            <!-- Qty Update -->
+            <form action="{% url 'update_cart' item.id %}" method="POST" class="qty-form">
+              {% csrf_token %}
+              <select name="quantity" onchange="this.form.submit()" class="qty-select-sm">
+                {% for i in "123456789" %}
+                <option value="{{ forloop.counter }}" {% if forloop.counter == item.quantity %}selected{% endif %}>
+                  Qty: {{ forloop.counter }}
+                </option>
+                {% endfor %}
+              </select>
+            </form>
+            <span class="cart-sep">|</span>
+            <a href="{% url 'remove_from_cart' item.id %}" class="cart-remove" onclick="return confirm('Remove this item?')">Delete</a>
+            <span class="cart-sep">|</span>
+            <a href="{% url 'toggle_wishlist' item.product.id %}" class="cart-save">Save for Later</a>
+          </div>
+        </div>
+
+        <div class="cart-item-price">
+          <strong>₹{{ item.subtotal }}</strong>
+          {% if item.quantity > 1 %}
+          <small>₹{{ item.product.price }} × {{ item.quantity }}</small>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+
+      <div class="cart-total-mobile">
+        Subtotal ({{ cart.total_items }} items): <strong>₹{{ cart.total_price }}</strong>
+      </div>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="cart-summary-col">
+      <div class="order-summary-card">
+        <h3>Order Summary</h3>
+        <div class="summary-row">
+          <span>Subtotal ({{ cart.total_items }} items)</span>
+          <span>₹{{ cart.total_price }}</span>
+        </div>
+        <div class="summary-row">
+          <span>Delivery Charges</span>
+          <span class="green">{% if cart.total_price >= 499 %}FREE{% else %}₹40{% endif %}</span>
+        </div>
+        {% if cart.total_price < 499 %}
+        <div class="free-delivery-hint">
+          Add ₹{{ 499|add:"-"|add:cart.total_price|floatformat:0 }} more for FREE delivery
+        </div>
+        {% endif %}
+        <hr>
+        <div class="summary-total">
+          <span>Order Total</span>
+          <span>₹{% if cart.total_price >= 499 %}{{ cart.total_price }}{% else %}{{ cart.total_price|add:"40" }}{% endif %}</span>
+        </div>
+        <a href="{% url 'checkout' %}" class="btn-checkout">Proceed to Checkout →</a>
+        <p class="secure-badge">🔒 Secure Checkout</p>
+      </div>
+    </div>
+
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">🛒</div>
+    <h2>Your cart is empty</h2>
+    <p>Looks like you haven't added anything yet!</p>
+    <a href="{% url 'product_list' %}" class="btn-primary-um">Continue Shopping</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
