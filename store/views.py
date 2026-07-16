@@ -126,20 +126,51 @@ def category_products(request, slug):
 
 
 def search(request):
-    query = request.GET.get('q', '')
-    products = []
+    query = request.GET.get('q', '').strip()
+    category_slug = request.GET.get('cat', '').strip()
+    products = Product.objects.filter(is_available=True)
+
     if query:
-        products = Product.objects.filter(
+        products = products.filter(
             Q(name__icontains=query) |
             Q(description__icontains=query) |
             Q(brand__icontains=query) |
-            Q(category__name__icontains=query),
-            is_available=True
-        ).distinct()
+            Q(category__name__icontains=query)
+        )
+    if category_slug:
+        products = products.filter(category__slug=category_slug)
+
+    products = products.distinct()
     return render(request, 'store/search.html', {
         'products': products,
         'query': query
     })
+
+
+def search_suggestions(request):
+    """Return a compact list for the header's live product search."""
+    query = request.GET.get('q', '').strip()
+    category_slug = request.GET.get('cat', '').strip()
+    if len(query) < 2:
+        return JsonResponse({'results': []})
+
+    products = Product.objects.filter(is_available=True).filter(
+        Q(name__icontains=query) |
+        Q(brand__icontains=query) |
+        Q(category__name__icontains=query)
+    )
+    if category_slug:
+        products = products.filter(category__slug=category_slug)
+
+    results = []
+    for product in products.select_related('category').distinct()[:6]:
+        results.append({
+            'name': product.name,
+            'brand': product.brand or product.category.name,
+            'url': product.get_absolute_url(),
+            'image': product.image.url if product.image else '',
+        })
+    return JsonResponse({'results': results})
 
 
 # ─── CART ───────────────────────────────────────────────────────────────────

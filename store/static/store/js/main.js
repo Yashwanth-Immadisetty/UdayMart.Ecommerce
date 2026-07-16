@@ -16,11 +16,103 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // ── Search bar category filter enhancement ──
   const searchInput = document.querySelector('.search-input');
-  if (searchInput) {
-    searchInput.addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') {
-        this.closest('form').submit();
+  const searchForm = document.querySelector('.search-bar');
+  const suggestions = document.getElementById('search-suggestions');
+  let searchTimer;
+  let activeSuggestion = -1;
+
+  const hideSuggestions = () => {
+    if (suggestions) {
+      suggestions.hidden = true;
+      suggestions.replaceChildren();
+    }
+    activeSuggestion = -1;
+  };
+
+  if (searchInput && searchForm && suggestions) {
+    const renderSuggestions = (results, query) => {
+      suggestions.replaceChildren();
+      if (!results.length) {
+        const empty = document.createElement('div');
+        empty.className = 'search-suggestion-empty';
+        empty.textContent = `No products found for "${query}"`;
+        suggestions.appendChild(empty);
+      } else {
+        results.forEach((result) => {
+          const link = document.createElement('a');
+          link.className = 'search-suggestion';
+          link.href = result.url;
+          link.setAttribute('role', 'option');
+          if (result.image) {
+            const image = document.createElement('img');
+            image.src = result.image;
+            image.alt = '';
+            link.appendChild(image);
+          } else {
+            const icon = document.createElement('span');
+            icon.className = 'search-suggestion-icon';
+            icon.textContent = '🛒';
+            link.appendChild(icon);
+          }
+          const text = document.createElement('span');
+          const name = document.createElement('strong');
+          name.textContent = result.name;
+          const brand = document.createElement('span');
+          brand.textContent = result.brand;
+          text.append(name, brand);
+          link.appendChild(text);
+          suggestions.appendChild(link);
+        });
       }
+      suggestions.hidden = false;
+    };
+
+    searchInput.addEventListener('input', function () {
+      const query = this.value.trim();
+      clearTimeout(searchTimer);
+      if (query.length < 2) {
+        hideSuggestions();
+        return;
+      }
+      searchTimer = setTimeout(async () => {
+        const params = new URLSearchParams({ q: query });
+        const category = searchForm.querySelector('[name="cat"]').value;
+        if (category) params.set('cat', category);
+        try {
+          const response = await fetch(`/search/suggestions/?${params}`);
+          if (!response.ok) throw new Error('Search unavailable');
+          const data = await response.json();
+          if (searchInput.value.trim() === query) renderSuggestions(data.results, query);
+        } catch (error) {
+          hideSuggestions();
+        }
+      }, 250);
+    });
+
+    searchInput.addEventListener('keydown', function (event) {
+      const items = Array.from(suggestions.querySelectorAll('.search-suggestion'));
+      if (event.key === 'ArrowDown' && items.length) {
+        event.preventDefault();
+        activeSuggestion = Math.min(activeSuggestion + 1, items.length - 1);
+      } else if (event.key === 'ArrowUp' && items.length) {
+        event.preventDefault();
+        activeSuggestion = Math.max(activeSuggestion - 1, 0);
+      } else if (event.key === 'Escape') {
+        hideSuggestions();
+        return;
+      } else if (event.key === 'Enter' && activeSuggestion >= 0) {
+        event.preventDefault();
+        items[activeSuggestion].click();
+        return;
+      } else {
+        return;
+      }
+      items.forEach((item, index) => item.classList.toggle('is-active', index === activeSuggestion));
+      items[activeSuggestion].scrollIntoView({ block: 'nearest' });
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!searchForm.contains(event.target)) hideSuggestions();
     });
   }
 

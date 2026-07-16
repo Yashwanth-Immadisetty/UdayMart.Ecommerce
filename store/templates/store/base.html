@@ -40,15 +40,16 @@
     </div>
 
     <!-- Search Bar -->
-    <form class="search-bar" action="{% url 'search' %}" method="GET">
+    <form class="search-bar" action="{% url 'search' %}" method="GET" role="search">
       <select name="cat" class="search-cat">
         <option value="">All</option>
         {% for cat in categories_all %}
-        <option value="{{ cat.slug }}">{{ cat.name }}</option>
+        <option value="{{ cat.slug }}" {% if request.GET.cat == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
         {% endfor %}
       </select>
       <input type="text" name="q" class="search-input" placeholder="Search products, brands…" value="{{ request.GET.q }}" autocomplete="off"/>
       <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+      <div id="search-suggestions" class="search-suggestions" role="listbox" hidden></div>
     </form>
 
     <!-- Header Right -->
