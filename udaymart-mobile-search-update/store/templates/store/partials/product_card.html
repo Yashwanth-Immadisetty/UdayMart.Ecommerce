@@ -1,0 +1,64 @@
+{% load static %}
+<div class="product-card">
+  {% if product.discount_percent > 0 %}
+  <div class="badge-discount">-{{ product.discount_percent }}%</div>
+  {% endif %}
+  {% if product.is_featured %}
+  <div class="badge-featured">⭐ Featured</div>
+  {% endif %}
+
+  <a href="{{ product.get_absolute_url }}" class="product-card-img-wrap">
+    {% if product.image %}
+    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy"/>
+    {% else %}
+    <div class="product-placeholder">{{ product.category.icon }}</div>
+    {% endif %}
+  </a>
+
+  <div class="product-card-body">
+    <p class="product-brand">{{ product.brand|default:"Uday Mart" }}</p>
+    <a href="{{ product.get_absolute_url }}" class="product-name">{{ product.name|truncatechars:60 }}</a>
+
+    <!-- Rating -->
+    <div class="product-rating">
+      {% with rating=product.rating|floatformat:0 %}
+      {% for i in "12345" %}
+        {% if forloop.counter <= rating|add:"0" %}
+        <i class="fas fa-star"></i>
+        {% else %}
+        <i class="far fa-star"></i>
+        {% endif %}
+      {% endfor %}
+      {% endwith %}
+      <span class="rating-count">({{ product.review_count }})</span>
+    </div>
+
+    <!-- Price -->
+    <div class="product-price">
+      <span class="price-now">₹{{ product.price }}</span>
+      {% if product.original_price %}
+      <span class="price-old">₹{{ product.original_price }}</span>
+      {% endif %}
+    </div>
+
+    <!-- Stock -->
+    {% if not product.in_stock %}
+    <p class="out-of-stock">Out of Stock</p>
+    {% else %}
+    <p class="in-stock">✓ In Stock</p>
+    {% endif %}
+
+    <!-- Actions -->
+    <div class="product-actions">
+      {% if product.in_stock %}
+      <form action="{% url 'add_to_cart' product.id %}" method="POST" class="add-to-cart-form">
+        {% csrf_token %}
+        <input type="hidden" name="quantity" value="1"/>
+        <button type="submit" class="btn-add-cart">Add to Cart 🛒</button>
+      </form>
+      {% else %}
+      <button disabled class="btn-add-cart disabled">Out of Stock</button>
+      {% endif %}
+    </div>
+  </div>
+</div>

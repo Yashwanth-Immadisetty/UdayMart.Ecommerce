@@ -1,0 +1,22 @@
+{% extends 'store/base.html' %}
+{% block title %}Search: "{{ query }}" – Uday Mart{% endblock %}
+{% block content %}
+<div class="container">
+  <h1 class="page-title">
+    {% if query %}Search results for "<em>{{ query }}</em>" ({{ products.count }} found)
+    {% else %}Search Products{% endif %}
+  </h1>
+  {% if products %}
+  <div class="product-grid">
+    {% for product in products %}{% include 'store/partials/product_card.html' %}{% endfor %}
+  </div>
+  {% elif query %}
+  <div class="empty-state">
+    <div class="empty-icon">🔍</div>
+    <h2>No results for "{{ query }}"</h2>
+    <p>Try different keywords or browse our categories.</p>
+    <a href="{% url 'product_list' %}" class="btn-primary-um">Browse All Products</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

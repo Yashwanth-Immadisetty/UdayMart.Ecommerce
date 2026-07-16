@@ -1,0 +1,19 @@
+{% extends 'store/base.html' %}
+{% block title %}{{ category.name }} – Uday Mart{% endblock %}
+{% block content %}
+<div class="container">
+  <h1 class="page-title">{{ category.icon }} {{ category.name }}</h1>
+  {% if category.description %}<p class="cat-description">{{ category.description }}</p>{% endif %}
+  {% if products %}
+  <div class="product-grid">
+    {% for product in products %}{% include 'store/partials/product_card.html' %}{% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">{{ category.icon }}</div>
+    <h2>No products in {{ category.name }} yet</h2>
+    <a href="{% url 'product_list' %}" class="btn-primary-um">Browse All</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,170 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}Uday Mart – Your Village Supermarket{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link rel="stylesheet" href="{% static 'store/css/style.css' %}"/>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ── TOP BAR ── -->
+<div class="topbar">
+  <div class="topbar-inner">
+    <span>🎉 Free delivery on orders above ₹499 | Village Delivery Available!</span>
+  </div>
+</div>
+
+<!-- ── HEADER ── -->
+<header class="header">
+  <div class="header-inner">
+
+    <!-- Logo -->
+    <a href="{% url 'home' %}" class="logo">
+      <span class="logo-icon">🛒</span>
+      <span class="logo-text">Uday<span class="logo-accent">Mart</span></span>
+    </a>
+
+    <!-- Delivery Location -->
+    <div class="delivery-loc">
+      <i class="fas fa-map-marker-alt"></i>
+      <div>
+        <span class="loc-label">Deliver to</span>
+        <span class="loc-value">Your Village</span>
+      </div>
+    </div>
+
+    <!-- Search Bar -->
+    <form class="search-bar" action="{% url 'search' %}" method="GET" role="search">
+      <select name="cat" class="search-cat">
+        <option value="">All</option>
+        {% for cat in categories_all %}
+        <option value="{{ cat.slug }}" {% if request.GET.cat == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+        {% endfor %}
+      </select>
+      <input type="text" name="q" class="search-input" placeholder="Search products, brands…" value="{{ request.GET.q }}" autocomplete="off"/>
+      <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+      <div id="search-suggestions" class="search-suggestions" role="listbox" hidden></div>
+    </form>
+
+    <!-- Header Right -->
+    <div class="header-right">
+      {% if user.is_authenticated %}
+      <div class="header-link dropdown">
+        <a href="{% url 'profile' %}" class="hlink">
+          <span class="hlink-sub">Hello, {{ user.first_name|default:user.username }}</span>
+          <span class="hlink-main">Account <i class="fas fa-chevron-down fa-xs"></i></span>
+        </a>
+        <div class="dropdown-menu-um">
+          <a href="{% url 'profile' %}"><i class="fas fa-user"></i> My Profile</a>
+          <a href="{% url 'order_list' %}"><i class="fas fa-box"></i> My Orders</a>
+          <a href="{% url 'wishlist' %}"><i class="fas fa-heart"></i> Wishlist</a>
+          <hr>
+          <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+        </div>
+      </div>
+      {% else %}
+      <a href="{% url 'login' %}" class="hlink">
+        <span class="hlink-sub">Hello, Sign in</span>
+        <span class="hlink-main">Account & Lists</span>
+      </a>
+      {% endif %}
+
+      <a href="{% url 'order_list' %}" class="hlink">
+        <span class="hlink-sub">Returns &</span>
+        <span class="hlink-main">Orders</span>
+      </a>
+
+      <a href="{% url 'cart' %}" class="cart-btn">
+        <div class="cart-icon-wrap">
+          <i class="fas fa-shopping-cart"></i>
+          <span class="cart-badge">{{ cart_count }}</span>
+        </div>
+        <span class="cart-label">Cart</span>
+      </a>
+    </div>
+
+  </div>
+
+  <!-- NAV BAR -->
+  <nav class="navbar">
+    <a href="{% url 'product_list' %}" class="nav-item"><i class="fas fa-th-large"></i> All Products</a>
+    {% for cat in categories_all|slice:":7" %}
+    <a href="{% url 'category_products' cat.slug %}" class="nav-item">{{ cat.icon }} {{ cat.name }}</a>
+    {% endfor %}
+    <a href="{% url 'product_list' %}?sort=price_asc" class="nav-item">🔥 Deals</a>
+    <a href="{% url 'product_list' %}?sort=newest" class="nav-item">✨ New Arrivals</a>
+  </nav>
+</header>
+
+<!-- ── MESSAGES ── -->
+{% if messages %}
+<div class="messages-container">
+  {% for msg in messages %}
+  <div class="alert alert-{{ msg.tags }}">
+    {{ msg }}
+    <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- ── MAIN CONTENT ── -->
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ── FOOTER ── -->
+<footer class="footer">
+  <div class="footer-top">
+    <a href="#" class="back-to-top">↑ Back to top</a>
+  </div>
+  <div class="footer-body">
+    <div class="footer-col">
+      <h4>Get to Know Us</h4>
+      <a href="#">About Uday Mart</a>
+      <a href="#">Careers</a>
+      <a href="#">Contact Us</a>
+    </div>
+    <div class="footer-col">
+      <h4>Shop With Us</h4>
+      <a href="{% url 'product_list' %}">All Products</a>
+      <a href="{% url 'product_list' %}?sort=price_asc">Today's Deals</a>
+      <a href="{% url 'product_list' %}?sort=newest">New Arrivals</a>
+    </div>
+    <div class="footer-col">
+      <h4>My Account</h4>
+      {% if user.is_authenticated %}
+      <a href="{% url 'profile' %}">Profile</a>
+      <a href="{% url 'order_list' %}">My Orders</a>
+      <a href="{% url 'wishlist' %}">Wishlist</a>
+      {% else %}
+      <a href="{% url 'login' %}">Sign In</a>
+      <a href="{% url 'register' %}">Register</a>
+      {% endif %}
+    </div>
+    <div class="footer-col">
+      <h4>We Accept</h4>
+      <div class="payment-icons">
+        <span>💵 Cash</span>
+        <span>📱 UPI</span>
+        <span>💳 Cards</span>
+        <span>🏦 NetBanking</span>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-logo">🛒 <strong>UdayMart</strong></div>
+    <p>© 2025 Uday Mart. All rights reserved. | Your trusted village supermarket 🌾</p>
+  </div>
+</footer>
+
+<script src="{% static 'store/js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

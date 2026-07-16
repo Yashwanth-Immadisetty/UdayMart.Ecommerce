@@ -1,0 +1,49 @@
+{% extends 'store/base.html' %}
+{% block title %}My Orders – Uday Mart{% endblock %}
+{% block content %}
+<div class="container">
+  <h1 class="page-title">📦 My Orders</h1>
+
+  {% if orders %}
+  <div class="orders-list">
+    {% for order in orders %}
+    <div class="order-card">
+      <div class="order-card-header">
+        <div>
+          <span class="order-id">Order #{{ order.order_id }}</span>
+          <span class="order-date">{{ order.created_at|date:"d M Y" }}</span>
+        </div>
+        <span class="order-status status-{{ order.status }}">{{ order.get_status_display }}</span>
+      </div>
+
+      <div class="order-items-preview">
+        {% for item in order.items.all|slice:":3" %}
+        <div class="order-item-row">
+          <span>{{ item.product_name }}</span>
+          <span>× {{ item.quantity }}</span>
+          <span>₹{{ item.subtotal }}</span>
+        </div>
+        {% endfor %}
+        {% if order.items.count > 3 %}
+        <p class="more-items">+{{ order.items.count|add:"-3" }} more items</p>
+        {% endif %}
+      </div>
+
+      <div class="order-card-footer">
+        <strong>Total: ₹{{ order.total_price }}</strong>
+        <a href="{% url 'order_detail' order.order_id %}" class="btn-outline-sm">View Details</a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📦</div>
+    <h2>No orders yet</h2>
+    <p>Start shopping to place your first order!</p>
+    <a href="{% url 'product_list' %}" class="btn-primary-um">Shop Now</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
