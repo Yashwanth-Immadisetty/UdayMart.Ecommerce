@@ -114,7 +114,7 @@ ul { list-style: none; }
   flex: 1;
   display: flex;
   border-radius: var(--radius);
-  overflow: hidden;
+  overflow: visible;
   border: 2px solid var(--primary);
   min-width: 0;
 }
