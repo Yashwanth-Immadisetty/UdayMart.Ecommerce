@@ -75,7 +75,7 @@
       </a>
       {% endif %}
 
-      <a href="{% url 'order_list' %}" class="hlink">
+      <a href="{% url 'order_list' %}" class="hlink orders-link">
         <span class="hlink-sub">Returns &</span>
         <span class="hlink-main">Orders</span>
       </a>
@@ -118,6 +118,31 @@
 <main>
   {% block content %}{% endblock %}
 </main>
+
+<!-- Mobile quick navigation -->
+<nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+  <a href="{% url 'home' %}" class="mobile-nav-item">
+    <i class="fas fa-home"></i><span>Home</span>
+  </a>
+  <a href="{% url 'product_list' %}" class="mobile-nav-item">
+    <i class="fas fa-th-large"></i><span>Shop</span>
+  </a>
+  <a href="{% url 'search' %}" class="mobile-nav-item">
+    <i class="fas fa-search"></i><span>Search</span>
+  </a>
+  <a href="{% url 'cart' %}" class="mobile-nav-item mobile-cart-nav">
+    <i class="fas fa-shopping-cart"></i><span>Cart{% if cart_count %} ({{ cart_count }}){% endif %}</span>
+  </a>
+  {% if user.is_authenticated %}
+  <a href="{% url 'profile' %}" class="mobile-nav-item">
+    <i class="fas fa-user"></i><span>Account</span>
+  </a>
+  {% else %}
+  <a href="{% url 'login' %}" class="mobile-nav-item">
+    <i class="fas fa-user"></i><span>Sign in</span>
+  </a>
+  {% endif %}
+</nav>
 
 <!-- ── FOOTER ── -->
 <footer class="footer">
