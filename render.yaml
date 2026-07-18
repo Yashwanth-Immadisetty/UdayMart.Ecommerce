@@ -20,6 +20,37 @@ services:
         generateValue: true
       - key: DEBUG
         value: "False"
+      # Keep OTP off until SMTP and Twilio values below are set in Render.
+      - key: OTP_AUTH_ENABLED
+        value: "false"
+      - key: ORDER_EMAIL_NOTIFICATIONS_ENABLED
+        value: "true"
+      - key: WHATSAPP_NOTIFICATIONS_ENABLED
+        value: "false"
+      - key: SITE_URL
+        value: "https://udaymart.onrender.com"
+      - key: EMAIL_HOST
+        sync: false
+      - key: EMAIL_PORT
+        value: "587"
+      - key: EMAIL_HOST_USER
+        sync: false
+      - key: EMAIL_HOST_PASSWORD
+        sync: false
+      - key: EMAIL_USE_TLS
+        value: "true"
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_VERIFY_SERVICE_SID
+        sync: false
+      - key: TWILIO_WHATSAPP_FROM
+        sync: false
+      - key: TWILIO_WHATSAPP_CONTENT_SID
+        sync: false
       - key: ADMIN_USERNAME
         sync: false
       - key: ADMIN_EMAIL

@@ -23,6 +23,80 @@ Do not use the old `admin / admin123` demo credentials in production. Uploaded
 media is stored on Render's ephemeral filesystem; use object storage (such as
 Cloudinary or S3) before relying on uploaded product images in production.
 
+## Secure OTP, Order Messages, and Current Location
+
+The site includes a secure email + SMS OTP flow for new customer accounts,
+optional WhatsApp order confirmations, email order confirmations, and a
+**Use My Current Location** button at checkout.
+
+It is intentionally safe to deploy before external accounts are configured:
+`OTP_AUTH_ENABLED` defaults to `false`, so the existing password login remains
+available. Turn it on only after configuring both email and Twilio in the
+Render service's **Environment** tab.
+
+### 1. Configure transactional email
+
+Add these private environment variables in Render (do not put them in Git):
+
+```
+EMAIL_HOST=smtp.your-provider.com
+EMAIL_PORT=587
+EMAIL_HOST_USER=your-smtp-username
+EMAIL_HOST_PASSWORD=your-smtp-password-or-app-password
+EMAIL_USE_TLS=true
+DEFAULT_FROM_EMAIL=Uday Mart <orders@your-domain.com>
+```
+
+Use an SMTP provider that is permitted to send transactional email from your
+chosen `DEFAULT_FROM_EMAIL` address.
+
+### 2. Configure SMS OTP with Twilio Verify
+
+Create a **Verify Service** in Twilio, then add these private Render variables:
+
+```
+TWILIO_ACCOUNT_SID=AC...
+TWILIO_AUTH_TOKEN=...
+TWILIO_VERIFY_SERVICE_SID=VA...
+OTP_AUTH_ENABLED=true
+```
+
+New customers will then verify one email code and one SMS code before their
+account becomes active. Password login also asks verified customers for the
+two codes. The sign-in page also offers an OTP-only sign-in option.
+
+### 3. Configure WhatsApp order confirmations (optional)
+
+WhatsApp order messages must come from a WhatsApp Business sender and use an
+approved template for business-initiated notifications. Create an approved
+Twilio Content Template with these four variables in this order:
+
+```
+UdayMart order update: Hello {{1}}, your order {{2}} has been confirmed.
+Total: {{3}}. Track it here: {{4}}
+```
+
+Then add these private Render variables and enable the feature:
+
+```
+TWILIO_WHATSAPP_FROM=+your-approved-whatsapp-sender
+TWILIO_WHATSAPP_CONTENT_SID=HX...
+WHATSAPP_NOTIFICATIONS_ENABLED=true
+SITE_URL=https://udaymart.onrender.com
+```
+
+WhatsApp is sent only when the customer checked the WhatsApp consent box and
+their registered mobile number has passed OTP verification. Email and
+WhatsApp delivery results appear in the Django admin under **Order
+notifications**; a failed message never cancels the order.
+
+### 4. Current location
+
+At checkout the customer can press **Use My Current Location**. Their browser
+asks for permission and, if allowed, the order stores optional latitude,
+longitude, and accuracy alongside the manual address. It works on Render's
+HTTPS URL and the customer can always decline it and type the address instead.
+
 ## 🚀 Quick Setup (Step by Step)
 
 ### Step 1: Install Python

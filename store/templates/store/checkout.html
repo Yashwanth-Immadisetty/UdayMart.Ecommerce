@@ -16,6 +16,9 @@
 
   <form method="POST" class="checkout-layout">
     {% csrf_token %}
+    {% if form.non_field_errors %}
+    <div class="auth-error">{{ form.non_field_errors }}</div>
+    {% endif %}
 
     <!-- LEFT: Address + Payment -->
     <div class="checkout-main">
@@ -42,6 +45,20 @@
         <div class="form-group">
           <label>Address Line 2 (Optional)</label>
           {{ form.address_line2 }}
+        </div>
+        <div class="delivery-location-tools">
+          {{ form.location_latitude }}
+          {{ form.location_longitude }}
+          {{ form.location_accuracy }}
+          <button type="button" class="btn-use-location" id="use-current-location">
+            <i class="fas fa-location-crosshairs"></i> Use My Current Location
+          </button>
+          <p class="location-status" id="location-status" aria-live="polite">
+            Optional: your browser will ask for permission. You can still enter your address manually.
+          </p>
+          {% if form.location_latitude.errors or form.location_longitude.errors or form.location_accuracy.errors %}
+          <p class="field-error">Location data was invalid. Please share it again or continue with the manual address.</p>
+          {% endif %}
         </div>
         <div class="form-grid-3">
           <div class="form-group">
@@ -107,4 +124,53 @@
     </div>
   </form>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  (function () {
+    const button = document.getElementById('use-current-location');
+    const status = document.getElementById('location-status');
+    const latitude = document.getElementById('{{ form.location_latitude.id_for_label }}');
+    const longitude = document.getElementById('{{ form.location_longitude.id_for_label }}');
+    const accuracy = document.getElementById('{{ form.location_accuracy.id_for_label }}');
+
+    if (!button || !status || !latitude || !longitude || !accuracy) return;
+
+    button.addEventListener('click', function () {
+      if (!navigator.geolocation) {
+        status.textContent = 'This browser does not support current-location sharing. Please enter your address manually.';
+        status.classList.add('is-error');
+        return;
+      }
+
+      button.disabled = true;
+      status.classList.remove('is-error', 'is-success');
+      status.textContent = 'Requesting your current location…';
+
+      navigator.geolocation.getCurrentPosition(
+        function (position) {
+          latitude.value = position.coords.latitude.toFixed(6);
+          longitude.value = position.coords.longitude.toFixed(6);
+          accuracy.value = Math.round(position.coords.accuracy);
+          status.textContent = 'Current location added. Please review and complete your delivery address.';
+          status.classList.add('is-success');
+          button.disabled = false;
+          button.innerHTML = '<i class="fas fa-check"></i> Current Location Added';
+        },
+        function (error) {
+          const messages = {
+            1: 'Location permission was not allowed. Please enter your address manually.',
+            2: 'Your location could not be determined. Please enter your address manually.',
+            3: 'Location request timed out. Please try again or enter your address manually.'
+          };
+          status.textContent = messages[error.code] || 'Location is unavailable. Please enter your address manually.';
+          status.classList.add('is-error');
+          button.disabled = false;
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+      );
+    });
+  }());
+</script>
 {% endblock %}

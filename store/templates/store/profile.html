@@ -8,6 +8,9 @@
       <div class="profile-avatar">{{ user.first_name.0|upper }}{{ user.last_name.0|upper }}</div>
       <h2>{{ user.get_full_name|default:user.username }}</h2>
       <p>{{ user.email }}</p>
+      {% if customer_profile %}
+      <p class="profile-phone">📱 {{ customer_profile.phone }} {% if customer_profile.phone_is_verified %}<span class="profile-verified">Verified</span>{% endif %}</p>
+      {% endif %}
       <p class="profile-since">Member since {{ user.date_joined|date:"M Y" }}</p>
       <div class="profile-links">
         <a href="{% url 'order_list' %}" class="profile-link-btn">📦 My Orders</a>

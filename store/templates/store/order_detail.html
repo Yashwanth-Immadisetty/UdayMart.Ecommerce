@@ -39,6 +39,9 @@
         {% if order.address_line2 %}<p>{{ order.address_line2 }}</p>{% endif %}
         <p>{{ order.city }}, {{ order.state }} – {{ order.pincode }}</p>
         <p>📞 {{ order.phone }}</p>
+        {% if order.has_current_location %}
+        <p class="shared-location-link"><a href="{{ order.current_location_map_url }}" target="_blank" rel="noopener"><i class="fas fa-location-dot"></i> View the current location you shared</a></p>
+        {% endif %}
       </div>
       <div class="checkout-card">
         <h3>💳 Payment</h3>

@@ -30,7 +30,12 @@ urlpatterns = [
 
     # Auth
     path('register/', views.register, name='register'),
+    path('register/verify/', views.verify_registration_otp, name='verify_registration_otp'),
+    path('register/resend-otp/', views.resend_registration_otp, name='resend_registration_otp'),
     path('login/', views.user_login, name='login'),
+    path('login/otp/', views.otp_login_start, name='otp_login_start'),
+    path('login/otp/verify/', views.verify_login_otp, name='verify_login_otp'),
+    path('login/otp/resend/', views.resend_login_otp, name='resend_login_otp'),
     path('logout/', views.user_logout, name='logout'),
     path('profile/', views.profile, name='profile'),
 ]

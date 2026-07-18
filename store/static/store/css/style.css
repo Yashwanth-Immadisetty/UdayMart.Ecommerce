@@ -705,6 +705,7 @@ ul { list-style: none; }
 .step.active { background: var(--primary); color: white; }
 .step-arrow { color: var(--text-muted); }
 .checkout-layout { display: grid; grid-template-columns: 1fr 350px; gap: 24px; }
+.checkout-layout > .auth-error { grid-column: 1 / -1; margin: 0; }
 .checkout-main { display: flex; flex-direction: column; gap: 20px; }
 .checkout-card { background: white; border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
 .checkout-card h2 { font-size: 18px; font-weight: 700; margin-bottom: 20px; }
@@ -724,6 +725,46 @@ ul { list-style: none; }
 }
 .form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(255,107,0,0.1); }
 .field-error { color: var(--danger); font-size: 12px; margin-top: 4px; }
+.form-help { color: var(--text-muted); font-size: 12px; line-height: 1.4; margin-top: 6px; }
+.checkbox-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin: 2px 0 4px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.4;
+  cursor: pointer;
+}
+.checkbox-option input { margin-top: 3px; accent-color: var(--primary); }
+
+.delivery-location-tools {
+  margin: -2px 0 16px;
+  padding: 12px;
+  border: 1px dashed #bcd2e9;
+  border-radius: var(--radius);
+  background: #f7fbff;
+}
+.btn-use-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid #1b75bc;
+  border-radius: 7px;
+  padding: 9px 12px;
+  background: white;
+  color: #145f9f;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.btn-use-location:hover { background: #eaf5ff; }
+.btn-use-location:disabled { opacity: 0.65; cursor: wait; }
+.location-status { margin-top: 7px; color: var(--text-muted); font-size: 12px; line-height: 1.4; }
+.location-status.is-success { color: var(--success); }
+.location-status.is-error { color: var(--danger); }
+.shared-location-link { margin-top: 10px; }
+.shared-location-link a { color: #145f9f; font-weight: 600; }
 
 .payment-options { display: flex; flex-direction: column; gap: 10px; }
 .payment-option {
@@ -755,6 +796,12 @@ ul { list-style: none; }
 .auth-card-wide { max-width: 560px; }
 .auth-logo { text-align: center; font-size: 28px; font-weight: 700; font-family: 'Rajdhani', sans-serif; color: var(--header-bg); margin-bottom: 8px; }
 .auth-card h2 { text-align: center; font-size: 22px; font-weight: 700; margin-bottom: 24px; }
+.auth-intro { margin: -11px 0 22px; color: var(--text-muted); text-align: center; font-size: 13px; line-height: 1.5; }
+.otp-code-input { letter-spacing: 5px; font-size: 18px; font-weight: 700; text-align: center; }
+.verification-complete { margin: 0 0 16px; padding: 10px 12px; border-radius: 7px; background: #e8f7ef; color: var(--success); font-size: 13px; font-weight: 700; }
+.otp-resend-form { margin-top: 14px; text-align: center; }
+.btn-text-link { border: 0; background: none; color: var(--primary); font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.btn-text-link:hover { text-decoration: underline; }
 .btn-auth {
   width: 100%;
   padding: 14px;
@@ -824,6 +871,7 @@ ul { list-style: none; }
 .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: white; font-size: 28px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; }
 .profile-card h2 { font-size: 20px; font-weight: 700; }
 .profile-card p { color: var(--text-muted); font-size: 13px; margin-top: 4px; }
+.profile-verified { color: var(--success); font-size: 11px; font-weight: 700; }
 .profile-since { font-size: 12px; margin-top: 8px; }
 .profile-links { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
 .profile-link-btn { padding: 10px; border: 1px solid var(--border); border-radius: var(--radius); font-size: 14px; font-weight: 500; transition: all 0.2s; }

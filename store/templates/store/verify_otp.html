@@ -1,0 +1,53 @@
+{% extends 'store/base.html' %}
+{% block title %}{% if purpose == 'registration' %}Verify Your Account{% else %}Verify Sign In{% endif %} - Uday Mart{% endblock %}
+{% block content %}
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">🔐 Uday Mart</div>
+    {% if purpose == 'registration' %}
+    <h2>Verify Your Account</h2>
+    <p class="auth-intro">For your security, enter the two codes sent to your email and mobile number.</p>
+    {% else %}
+    <h2>Verify Sign In</h2>
+    <p class="auth-intro">Enter the two security codes sent to your verified email and mobile number.</p>
+    {% endif %}
+
+    <form method="POST">
+      {% csrf_token %}
+      {% if not email_verified %}
+      <div class="form-group">
+        <label for="{{ form.email_code.id_for_label }}">Email code</label>
+        {{ form.email_code }}
+        <p class="form-help">Sent to {{ email }}</p>
+        {% if form.email_code.errors %}<p class="field-error">{{ form.email_code.errors.0 }}</p>{% endif %}
+      </div>
+      {% else %}
+      <p class="verification-complete">✓ Email verified</p>
+      {% endif %}
+
+      {% if not phone_verified %}
+      <div class="form-group">
+        <label for="{{ form.phone_code.id_for_label }}">SMS code</label>
+        {{ form.phone_code }}
+        <p class="form-help">Sent to {{ phone }}</p>
+        {% if form.phone_code.errors %}<p class="field-error">{{ form.phone_code.errors.0 }}</p>{% endif %}
+      </div>
+      {% else %}
+      <p class="verification-complete">✓ Mobile number verified</p>
+      {% endif %}
+
+      {% if form.non_field_errors %}<div class="auth-error">{{ form.non_field_errors }}</div>{% endif %}
+      <button type="submit" class="btn-auth">Verify and Continue</button>
+    </form>
+
+    {% if purpose == 'registration' %}
+    <form method="POST" action="{% url 'resend_registration_otp' %}" class="otp-resend-form">
+    {% else %}
+    <form method="POST" action="{% url 'resend_login_otp' %}" class="otp-resend-form">
+    {% endif %}
+      {% csrf_token %}
+      <button type="submit" class="btn-text-link">Resend verification codes</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

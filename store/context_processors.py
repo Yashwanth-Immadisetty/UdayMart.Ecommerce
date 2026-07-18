@@ -1,3 +1,4 @@
+from django.conf import settings
 from .models import Cart, Category
 
 
@@ -13,4 +14,5 @@ def cart_count(request):
     return {
         'cart_count': count,
         'categories_all': Category.objects.all(),
+        'otp_auth_enabled': settings.OTP_AUTH_ENABLED,
     }
